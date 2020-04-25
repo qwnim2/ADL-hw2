@@ -56,7 +56,7 @@ if __name__ == "__main__":
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
-      print(input_dict)
+      #print(input_dict)
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     #print(input_dict)
     loss, logits = model(next_sentence_label=answerable.to(device), 
