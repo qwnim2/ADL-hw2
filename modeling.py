@@ -13,7 +13,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 bert_pretrain_name = 'bert-base-chinese'
 tokenizer = BertTokenizer.from_pretrained(bert_pretrain_name)
-model = BertForNextSentencePrediction.from_pretrained(bert_pretrain_name).to(device)
+model = BertForQuestionAnswering.from_pretrained(bert_pretrain_name).to(device)
 optim = AdamW(model.parameters(), lr)
 
 class EarlyDataset(Dataset):
@@ -28,15 +28,16 @@ class EarlyDataset(Dataset):
           for qa in para['qas']:
             qa_id = qa['id']
             question = qa['question']
+            answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, answerable))
+            self.data.append((qa_id, context, question, answers,answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, answerable = self.data[index]
-    return qa_id, context, question, int(answerable)
+    qa_id, context, question, answers, answerable = self.data[index]
+    return qa_id, context, question, answers, int(answerable)
 
 train_dataset = EarlyDataset("./train.json", tokenizer)
 valid_dataset = EarlyDataset("./dev.json", tokenizer)
@@ -46,20 +47,16 @@ train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
 valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
 if __name__ == "__main__":
-  output_dir = './model_save_測試/'
+  output_dir = './model_save_測試測試/'
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
-      #print(f"============={batch}============")
-      ids, contexts, questions, answerable = batch
-      #print(f'id : ======={id}=======')
-      #print(f'contexts : ======={contexts}=======')
-      #print(f'questions : ======={questions}=======')
-      #print(f'answerable : ======={answerable}=======')
-      input_dict = tokenizer.batch_encode_plus(contexts, questions, 
+      ids, contexts, questions, answers, answerable = batch
+      input_dict = tokenizer.batch_encode_plus(contexts, questions, answers,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
+      print(input_dict)
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     #print(input_dict)
     loss, logits = model(next_sentence_label=answerable.to(device), 
