@@ -30,15 +30,16 @@ class EarlyDataset(Dataset):
             question = qa['question']
             # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
             text = qa['answers'][0]['text']
+            start = qa['answers'][0]['answer_start']
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, text, answerable))
+            self.data.append((qa_id, context, question, text, start, answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, text, answerable = self.data[index]
-    return qa_id, context, question, text, int(answerable)
+    qa_id, context, question, text, start, answerable = self.data[index]
+    return qa_id, context, question, text, int(start), int(answerable)
 
 if __name__ == "__main__":
 
@@ -52,19 +53,27 @@ if __name__ == "__main__":
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
-      ids, contexts, questions, text, answerable = batch
-      input_dict = tokenizer.batch_encode_plus(contexts, questions,
+      ids, contexts, questions, text, start, answerable = batch
+      #print(batch)
+      shit = []
+      for i in range(batch_size):
+        shit.append([contexts[i], questions[i]])
+      # print(contexts_list)
+      # print(questions_list)
+      input_dict = tokenizer.batch_encode_plus(shit,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
-      #print(input_dict)
-    input_dict = {k: v.to(device) for k, v in input_dict.items()}
-
-    loss, start_scores, end_scores = model(torch.tensor([input_dict["input_ids"]]), token_type_ids=torch.tensor([input_dict["token_type_ids"]]))#**input_dict)
-    loss.backward()
-    optim.step()
-    optim.zero_grad()
-    
+      input_dict = {k: v.to(device) for k, v in input_dict.items()}
+      print(input_dict)
+      loss, start_scores, end_scores = model(**input_dict,
+                                            start_positions=torch.tensor([start]),
+                                            end_positions=torch.tensor([start+len(text)-1])
+                                            )
+      loss.backward()
+      optim.step()
+      optim.zero_grad()
+      
     if not os.path.exists(output_dir):
       os.makedirs(output_dir)
 
