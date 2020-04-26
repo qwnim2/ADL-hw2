@@ -28,39 +28,39 @@ class EarlyDataset(Dataset):
           for qa in para['qas']:
             qa_id = qa['id']
             question = qa['question']
-            answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
+            # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
+            text = qa['answers'][0]['text']
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, answers,answerable))
+            self.data.append((qa_id, context, question, text,answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, answers, answerable = self.data[index]
-    return qa_id, context, question, answers, int(answerable)
-
-train_dataset = EarlyDataset("./train.json", tokenizer)
-valid_dataset = EarlyDataset("./dev.json", tokenizer)
-
-
-train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
-valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
+    qa_id, context, question, text, answerable = self.data[index]
+    return qa_id, context, question, text, int(answerable)
 
 if __name__ == "__main__":
+
+  train_dataset = EarlyDataset("./train.json", tokenizer)
+  valid_dataset = EarlyDataset("./dev.json", tokenizer)
+
+  train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
+  valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
+
   output_dir = './model_save_測試測試/'
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
-      ids, contexts, questions, answers, answerable = batch
-      input_dict = tokenizer.batch_encode_plus(contexts, questions, answers,
+      ids, contexts, questions, text, answerable = batch
+      input_dict = tokenizer.batch_encode_plus(contexts, questions, text,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
-      #print(input_dict)
+      print(input_dict)
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    #print(input_dict)
-    loss, logits = model(next_sentence_label=answerable.to(device), 
-                          **input_dict)
+
+    loss, start_scores, end_scores = model(**input_dict)
     loss.backward()
     optim.step()
     optim.zero_grad()
