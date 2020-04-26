@@ -31,7 +31,7 @@ class EarlyDataset(Dataset):
             # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
             text = qa['answers'][0]['text']
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, text,answerable))
+            self.data.append((qa_id, context, question, text, answerable))
   
   def __len__(self) -> int:
     return len(self.data)
@@ -53,14 +53,14 @@ if __name__ == "__main__":
     pbar = tqdm(train_loader)
     for batch in pbar:
       ids, contexts, questions, text, answerable = batch
-      input_dict = tokenizer.batch_encode_plus(contexts, questions, text,
+      input_dict = tokenizer.batch_encode_plus(contexts, questions,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
-      print(input_dict)
+      #print(input_dict)
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
 
-    loss, start_scores, end_scores = model(**input_dict)
+    loss, start_scores, end_scores = model(torch.tensor([input_dict["input_ids"]]), token_type_ids=torch.tensor([input_dict["token_type_ids"]]))#**input_dict)
     loss.backward()
     optim.step()
     optim.zero_grad()
