@@ -62,8 +62,8 @@ with torch.no_grad():
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     with torch.no_grad():
       start_scores, end_scores = model(**input_dict,
-                                      start_positions=None,
-                                      end_positions=None
+                                      # start_positions=None,
+                                      # end_positions=None
                                       )
       print(f"start_scores: {start_scores}")
       print(f"end_scores: {start_scores}")
