@@ -46,10 +46,8 @@ if __name__ == "__main__":
 
   def startfinder(mylist, pattern):
     for i in range(len(mylist)):
-      print("==========", i,"============")
       if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
-        print("==========", i,"============")
-        return i, i+len(pattern)-1
+        return i, i+len(pattern)
     return 0,0
 
   train_dataset = EarlyDataset("../train.json", tokenizer)
@@ -85,13 +83,13 @@ if __name__ == "__main__":
       for i in range(batch_size):
         text_encode = tokenizer.encode(text[i])
         text_encode = text_encode[1:-1]
-
-        #print(tokenizer.decode(text_encode).replace(" ", ""), text[i])
-        print(len(input_dict["input_ids"][i]))
-        start, end = startfinder(input_dict["input_ids"][i], text_encode)
-        start_list.append(start)
-        end_list.append(end)
-        #print(tokenizer.decode(text_encode), text[i])
+        if text_encode!=[]:  
+          start, end = startfinder(input_dict["input_ids"][i].tolist(), text_encode)
+          start_list.append(start)
+          end_list.append(end)
+        else:
+          start_list.append(0)
+          end_list.append(0)
 
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=torch.tensor(start_list).to(device),
@@ -101,7 +99,7 @@ if __name__ == "__main__":
       optim.step()
       optim.zero_grad()
       
-      #pbar.set_description(f"loss: {loss.item():.4f}")
+      pbar.set_description(f"loss: {loss.item():.4f}")
 
     if not os.path.exists(output_dir):
       os.makedirs(output_dir)
