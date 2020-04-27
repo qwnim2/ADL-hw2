@@ -60,7 +60,8 @@ with torch.no_grad():
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    #print(input_dict)
+    for i in input_dict['token_type_ids']:
+      print(i)
     with torch.no_grad():
       start_scores, end_scores = model(input_ids = input_dict['input_ids'],token_type_ids = input_dict['token_type_ids'])#**input_dict)
       print(f"start_scores: {start_scores}")
