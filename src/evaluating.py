@@ -41,7 +41,7 @@ class EarlyDataset(Dataset):
     qa_id, context, question = self.data[index]
     return qa_id, context, question
 
-test_dataset = EarlyDataset("./dev.json", tokenizer)
+test_dataset = EarlyDataset("../dev.json", tokenizer)
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
 best_valid_loss = float('inf')

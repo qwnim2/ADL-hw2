@@ -44,8 +44,8 @@ class EarlyDataset(Dataset):
 
 if __name__ == "__main__":
 
-  train_dataset = EarlyDataset("./train.json", tokenizer)
-  valid_dataset = EarlyDataset("./dev.json", tokenizer)
+  train_dataset = EarlyDataset("../train.json", tokenizer)
+  valid_dataset = EarlyDataset("../dev.json", tokenizer)
 
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
