@@ -8,7 +8,7 @@ from pathlib import Path
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-output_dir = ('./model_save_測試測試/')
+output_dir = ('../model_save_測試測試/')
 model = BertForNextSentencePrediction.from_pretrained(output_dir)
 tokenizer = BertTokenizer.from_pretrained(output_dir)
 
