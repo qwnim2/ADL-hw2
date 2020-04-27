@@ -63,7 +63,7 @@ if __name__ == "__main__":
                                               pad_to_max_length=True,
                                               return_tensors='pt')
       for input_id in input_dict["input_ids"]:
-        print(tokenizer.convert_ids_to_tokens(input_id))
+        print(len(input_id))
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=start.to(device),
