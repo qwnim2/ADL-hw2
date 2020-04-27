@@ -60,8 +60,8 @@ with torch.no_grad():
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    for i in input_dict['token_type_ids']:
-      #print(i)
+    # for i in input_dict['token_type_ids']:
+    #   #print(i)
     with torch.no_grad():
       logit = model(**input_dict)#, start_positions=None, end_positions=None)
       print(f"logit: {logit}")
