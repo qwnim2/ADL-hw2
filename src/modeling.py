@@ -71,6 +71,8 @@ if __name__ == "__main__":
       optim.step()
       optim.zero_grad()
       
+      pbar.set_description(f"loss: {loss.item():.4f}")
+
     if not os.path.exists(output_dir):
       os.makedirs(output_dir)
 
@@ -81,5 +83,4 @@ if __name__ == "__main__":
     model_to_save.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
     
-    pbar.set_description(f"loss: {loss.item():.4f}")
   print("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEs")
