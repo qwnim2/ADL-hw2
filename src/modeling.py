@@ -50,7 +50,7 @@ if __name__ == "__main__":
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
-  output_dir = './model_save_測試測試/'
+  output_dir = '../model_save_測試測試/'
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
