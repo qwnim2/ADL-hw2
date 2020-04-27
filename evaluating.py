@@ -28,18 +28,18 @@ class EarlyDataset(Dataset):
             qa_id = qa['id']
             question = qa['question']
             # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
-            text = qa['answers'][0]['text']
-            start = int(qa['answers'][0]['answer_start'])
-            end = start+len(text)-1
-            answerable = qa['answerable']
-            self.data.append((qa_id, context, question, text, start, end, answerable))
+            #text = qa['answers'][0]['text']
+            #start = int(qa['answers'][0]['answer_start'])
+            #end = start+len(text)-1
+            #answerable = qa['answerable']
+            self.data.append((qa_id, context, question)# text, start, end, answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, text, start, end, answerable = self.data[index]
-    return qa_id, context, question, text, int(start), int(end), int(answerable)
+    qa_id, context, question = self.data[index]
+    return qa_id, context, question
 
 test_dataset = EarlyDataset("./dev.json", tokenizer)
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
@@ -51,7 +51,7 @@ model.eval()
 with torch.no_grad():
   pbar=tqdm(test_loader)
   for batch in pbar:
-    ids, contexts, questions, text, start, end, answerable = batch
+    ids, contexts, questions = batch
     input_list = []
     for i in range(batch_size):
       input_list.append([contexts[i], questions[i]])
@@ -62,8 +62,8 @@ with torch.no_grad():
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     with torch.no_grad():
       start_scores, end_scores = model(**input_dict,
-                                      # start_positions=None,
-                                      # end_positions=None
+                                      start_positions=None,
+                                      end_positions=None
                                       )
       print(f"start_scores: {start_scores}")
       print(f"end_scores: {start_scores}")
