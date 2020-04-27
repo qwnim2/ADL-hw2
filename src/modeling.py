@@ -50,7 +50,7 @@ if __name__ == "__main__":
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
-  output_dir = '../model_save_測試測試/'
+  output_dir = '../model_save_測試/'
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
@@ -62,6 +62,8 @@ if __name__ == "__main__":
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
+      for input_id in input_dict["input_ids"]:
+        print(input_id)
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=start.to(device),
