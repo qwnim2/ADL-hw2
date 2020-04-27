@@ -32,7 +32,7 @@ class EarlyDataset(Dataset):
             #start = int(qa['answers'][0]['answer_start'])
             #end = start+len(text)-1
             #answerable = qa['answerable']
-            self.data.append((qa_id, context, question)# text, start, end, answerable))
+            self.data.append((qa_id, context, question))# text, start, end, answerable))
 
   def __len__(self):
     return len(self.data)
