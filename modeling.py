@@ -55,20 +55,14 @@ if __name__ == "__main__":
     pbar = tqdm(train_loader)
     for batch in pbar:
       ids, contexts, questions, text, start, end, answerable = batch
-      #print(batch)
-      #print(contexts)
-      #print(questions)
       train_input = []
       for i in range(batch_size):
         train_input.append([contexts[i], questions[i]])
-      # print(contexts_list)
-      # print(questions_list)
       input_dict = tokenizer.batch_encode_plus(train_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
-      #print(input_dict)
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=start.to(device),
                                             end_positions=end.to(device)
