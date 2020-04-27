@@ -30,16 +30,17 @@ class EarlyDataset(Dataset):
             question = qa['question']
             # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
             text = qa['answers'][0]['text']
-            start = qa['answers'][0]['answer_start']
+            start = int(qa['answers'][0]['answer_start'])
+            end = start+len(text)-1
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, text, start, answerable))
+            self.data.append((qa_id, context, question, text, start, end, answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, text, start, answerable = self.data[index]
-    return qa_id, context, question, text, int(start), int(answerable)
+    qa_id, context, question, text, start, end, answerable = self.data[index]
+    return qa_id, context, question, text, int(start), int(end), int(answerable)
 
 if __name__ == "__main__":
 
@@ -53,10 +54,10 @@ if __name__ == "__main__":
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
-      ids, contexts, questions, text, start, answerable = batch
+      ids, contexts, questions, text, start, end, answerable = batch
       #print(batch)
-      print(contexts)
-      print(questions)
+      #print(contexts)
+      #print(questions)
       train_input = []
       for i in range(batch_size):
         train_input.append([contexts[i], questions[i]])
@@ -69,8 +70,8 @@ if __name__ == "__main__":
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
       #print(input_dict)
       loss, start_scores, end_scores = model(**input_dict,
-                                            start_positions=torch.tensor([start]),
-                                            end_positions=torch.tensor([start+len(text)-1])
+                                            start_positions=start
+                                            end_positions=end
                                             )
       loss.backward()
       optim.step()
