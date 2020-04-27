@@ -5,7 +5,7 @@ from transformers import *
 from tqdm.auto import trange, tqdm
 import os
 
-max_epoch = 5
+max_epoch = 2
 batch_size = 4
 lr = 1e-4
 weight_decay = 0
