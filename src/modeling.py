@@ -59,10 +59,9 @@ if __name__ == "__main__":
       for i in range(batch_size):
         train_input.append([contexts[i], questions[i]])
       input_dict = tokenizer.batch_encode_plus(train_input,
-                                              max_length=tokenizer.max_len, 
+                                              max_length=tokenizer.max_len, #512
                                               pad_to_max_length=True,
                                               return_tensors='pt')
-      print(tokenizer.max_len)
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=start.to(device),
