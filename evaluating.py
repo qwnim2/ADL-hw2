@@ -61,9 +61,7 @@ with torch.no_grad():
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     with torch.no_grad():
-      start_scores, end_scores = model(**input_dict
-                                      
-                                      )
+      start_scores, end_scores = model(**input_dict)
       print(f"start_scores: {start_scores}")
       print(f"end_scores: {start_scores}")
       # probs = logits.softmax(-1)[:, 1]
