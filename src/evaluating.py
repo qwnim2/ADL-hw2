@@ -63,7 +63,7 @@ with torch.no_grad():
     # for i in input_dict['token_type_ids']:
     #   #print(i)
     with torch.no_grad():
-      logit = model(**input_dict)#, start_positions=None, end_positions=None)
+      logit = model(**input_dict, start_positions=None, end_positions=None)
       print(f"logit: {logit}")
       #print(f"start_scores: {start_scores}")
       #print(f"end_scores: {start_scores}")
