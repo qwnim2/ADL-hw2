@@ -61,15 +61,20 @@ with torch.no_grad():
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     with torch.no_grad():
-      logits = model(**input_dict)[0]
-      probs = logits.softmax(-1)[:, 1]
-      print(probs)
-      all_predictions.update(
-          {
-              uid: 'answer' if prob > 0.66 else ''
+      start_scores, end_scores = model(**input_dict,
+                                      start_positions=None,
+                                      end_positions=None
+                                      )
+      print(f"start_scores: {start_scores}")
+      print(f"end_scores: {start_scores}")
+      # probs = logits.softmax(-1)[:, 1]
+      # print(probs)
+      # all_predictions.update(
+      #     {
+      #         uid: 'answer' if prob > 0.66 else ''
 
-              for uid, prob in zip(ids, probs)
-          }
-        )
+      #         for uid, prob in zip(ids, probs)
+      #     }
+      #   )
 
-Path("./predict.json").write_text(json.dumps(all_predictions))
+#Path("./predict.json").write_text(json.dumps(all_predictions))
