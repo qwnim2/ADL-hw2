@@ -70,8 +70,8 @@ if __name__ == "__main__":
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
       #print(input_dict)
       loss, start_scores, end_scores = model(**input_dict,
-                                            start_positions=start
-                                            end_positions=end
+                                            start_positions=start.to(device),
+                                            end_positions=end.to(device)
                                             )
       loss.backward()
       optim.step()
