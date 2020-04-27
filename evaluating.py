@@ -53,8 +53,8 @@ with torch.no_grad():
   for batch in pbar:
     ids, contexts, questions, text, start, end, answerable = batch
     input_list = []
-      for i in range(batch_size):
-        input_list.append([contexts[i], questions[i]])
+    for i in range(batch_size):
+      input_list.append([contexts[i], questions[i]])
     input_dict = tokenizer.batch_encode_plus(input_list,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
