@@ -30,19 +30,27 @@ class EarlyDataset(Dataset):
             question = qa['question']
             # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
             text = qa['answers'][0]['text']
-            start = int(qa['answers'][0]['answer_start'])
-            end = start+len(text)-1
+            #start = int(qa['answers'][0]['answer_start'])
+            #end = start+len(text)-1
             answerable = qa['answerable']
-            self.data.append((qa_id, context, question, text, start, end, answerable))
+            self.data.append((qa_id, context, question, text, answerable))
   
   def __len__(self) -> int:
     return len(self.data)
 
   def __getitem__(self, index: int):
-    qa_id, context, question, text, start, end, answerable = self.data[index]
-    return qa_id, context, question, text, int(start), int(end), int(answerable)
+    qa_id, context, question, text, answerable = self.data[index]
+    return qa_id, context, question, text, int(answerable)
 
 if __name__ == "__main__":
+
+  def startfinder(mylist, pattern):
+    for i in range(len(mylist)):
+      print("==========", i,"============")
+      if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
+        print("==========", i,"============")
+        return i, i+len(pattern)-1
+    return 0,0
 
   train_dataset = EarlyDataset("../train.json", tokenizer)
   valid_dataset = EarlyDataset("../dev.json", tokenizer)
@@ -54,24 +62,46 @@ if __name__ == "__main__":
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:
-      ids, contexts, questions, text, start, end, answerable = batch
+      ids, contexts, questions, text, answerable = batch
       train_input = []
       for i in range(batch_size):
-        train_input.append([contexts[i], questions[i]])
+        context = ()
+        question_len = len(questions[i])
+        context_max_len = 509 - question_len
+        if len(contexts[i])>context_max_len:      #truncate
+          context=contexts[i][:context_max_len]
+        else:
+          context=contexts[i]
+        train_input.append([context, questions[i]])     
+
       input_dict = tokenizer.batch_encode_plus(train_input,
                                               max_length=tokenizer.max_len, #512
                                               pad_to_max_length=True,
                                               return_tensors='pt')
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
+
+      start_list = []
+      end_list = []
+      for i in range(batch_size):
+        text_encode = tokenizer.encode(text[i])
+        text_encode = text_encode[1:-1]
+
+        #print(tokenizer.decode(text_encode).replace(" ", ""), text[i])
+        print(len(input_dict["input_ids"][i]))
+        start, end = startfinder(input_dict["input_ids"][i], text_encode)
+        start_list.append(start)
+        end_list.append(end)
+        #print(tokenizer.decode(text_encode), text[i])
+
       loss, start_scores, end_scores = model(**input_dict,
-                                            start_positions=start.to(device),
-                                            end_positions=end.to(device)
+                                            start_positions=torch.tensor(start_list).to(device),
+                                            end_positions=torch.tensor(end_list).to(device)
                                             )
       loss.backward()
       optim.step()
       optim.zero_grad()
       
-      pbar.set_description(f"loss: {loss.item():.4f}")
+      #pbar.set_description(f"loss: {loss.item():.4f}")
 
     if not os.path.exists(output_dir):
       os.makedirs(output_dir)
