@@ -67,7 +67,7 @@ if __name__ == "__main__":
                                               pad_to_max_length=True,
                                               return_tensors='pt')
       input_dict = {k: v.to(device) for k, v in input_dict.items()}
-      print(input_dict)
+      #print(input_dict)
       loss, start_scores, end_scores = model(**input_dict,
                                             start_positions=torch.tensor([start]),
                                             end_positions=torch.tensor([start+len(text)-1])
