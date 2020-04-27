@@ -55,12 +55,14 @@ if __name__ == "__main__":
     for batch in pbar:
       ids, contexts, questions, text, start, answerable = batch
       #print(batch)
-      shit = []
+      print(contexts)
+      print(questions)
+      train_input = []
       for i in range(batch_size):
-        shit.append([contexts[i], questions[i]])
+        train_input.append([contexts[i], questions[i]])
       # print(contexts_list)
       # print(questions_list)
-      input_dict = tokenizer.batch_encode_plus(shit,
+      input_dict = tokenizer.batch_encode_plus(train_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
