@@ -62,13 +62,15 @@ with torch.no_grad():
         else:
           context=contexts[i]
         eval_input.append([context, questions[i]])
-
+    #print(eval_input)
     input_dict = tokenizer.batch_encode_plus(eval_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    logit = model(**input_dict)#, start_positions=None, end_positions=None)
+    for i in input_dict['token_type_ids']:
+      print(i)
+    logit= model(**input_dict)#, start_positions=None, end_positions=None)
     print(f"logit: {logit}")
 
     #for i in range(batch_size):
