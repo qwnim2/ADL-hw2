@@ -63,10 +63,9 @@ with torch.no_grad():
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    a = model(**input_dict
-                                            )#, start_positions=None, end_positions=None)
+    a ,start = model(**input_dict, start_positions=None, end_positions=None)
     print(f"logit: {a}")
-
+    print(f"unk: {start}")
     #for i in range(batch_size):
       
       #print(f"start_scores: {start_scores}")
