@@ -7,12 +7,12 @@ import os
 
 max_epoch = 2
 batch_size = 4
-lr = 1e-4
+lr = 1e-5
 weight_decay = 0
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 bert_pretrain_name = 'bert-base-chinese'
-tokenizer = BertTokenizer.from_pretrained(bert_pretrain_name)
+tokenizer = BertTokenizer.from_pretrained(bert_pretrain_name , do_lower_case=True)
 model = BertForQuestionAnswering.from_pretrained(bert_pretrain_name).to(device)
 optim = AdamW(model.parameters(), lr)
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
-  output_dir = '../model_save_測試/'
+  output_dir = '../model_save_測試1/'
   for epoch in trange(max_epoch):
     pbar = tqdm(train_loader)
     for batch in pbar:

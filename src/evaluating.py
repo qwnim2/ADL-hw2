@@ -10,7 +10,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 output_dir = ('../model_save_測試/')
 model = BertForQuestionAnswering.from_pretrained(output_dir)
-tokenizer = BertTokenizer.from_pretrained(output_dir)
+tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', do_lower_case=True)
 
 model.to(device)
 batch_size = 4
@@ -63,9 +63,10 @@ with torch.no_grad():
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    a ,start = model(**input_dict, start_positions=None, end_positions=None)
-    print(f"logit: {a}")
-    print(f"unk: {start}")
+    print(input_dict)
+    start ,end = model(**input_dict, start_positions=None, end_positions=None)
+    #print(f"start: {start}")
+    #print(f"end: {end}")
     #for i in range(batch_size):
       
       #print(f"start_scores: {start_scores}")
