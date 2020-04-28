@@ -39,7 +39,6 @@ class EarlyDataset(Dataset):
 test_dataset = EarlyDataset("../dev.json", tokenizer)
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
-best_valid_loss = float('inf')
 all_predictions = {}
 
 model.eval()
@@ -48,15 +47,18 @@ with torch.no_grad():
   for batch in pbar:
     ids, contexts, questions = batch
     eval_input = []
-    for i in range(batch_size):
-        context = ()
-        question_len = len(questions[i])
-        context_max_len = 509 - question_len
-        if len(contexts[i])>context_max_len:      #truncate
-          context=contexts[i][:context_max_len]
-        else:
-          context=contexts[i]
-        eval_input.append([context, questions[i]])
+    for i in range(len(ids)):
+      context = ()
+      print(i)
+      question_len = len(questions[i])
+      print(questions[i])
+      context_max_len = 509 - question_len
+      print(context_max_len)
+      if len(contexts[i])>context_max_len:      #truncate
+        context=contexts[i][:context_max_len]
+      else:
+        context=contexts[i]
+      eval_input.append([context, questions[i]])
     input_dict = tokenizer.batch_encode_plus(eval_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
@@ -72,12 +74,6 @@ with torch.no_grad():
         end = -1
       answer = "".join(tokenizer.convert_ids_to_tokens(input_dict['input_ids'][i][start:end+1]))
       all_predictions[ids[i]]=answer
-    # all_predictions.update(
-    #     {
-    #         uid: 'answer' if prob > 0.66 else ''
 
-    #         for uid, prob in zip(ids, probs)
-    #     }
-    #   )
 
 Path("../predict.json").write_text(json.dumps(all_predictions))
