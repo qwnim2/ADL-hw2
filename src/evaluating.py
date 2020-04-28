@@ -8,7 +8,7 @@ from pathlib import Path
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-output_dir = ('../model_save_測試/')
+output_dir = ('../model_save_測試1/')
 model = BertForQuestionAnswering.from_pretrained(output_dir)
 tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', do_lower_case=True)
 
@@ -57,28 +57,27 @@ with torch.no_grad():
         else:
           context=contexts[i]
         eval_input.append([context, questions[i]])
-    #print(eval_input)
     input_dict = tokenizer.batch_encode_plus(eval_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    print(input_dict)
-    start ,end = model(**input_dict, start_positions=None, end_positions=None)
-    #print(f"start: {start}")
-    #print(f"end: {end}")
-    #for i in range(batch_size):
-      
-      #print(f"start_scores: {start_scores}")
-      #print(f"end_scores: {start_scores}")
-      # probs = logits.softmax(-1)[:, 1]
-      # print(probs)
-      # all_predictions.update(
-      #     {
-      #         uid: 'answer' if prob > 0.66 else ''
+    start_list ,end_list = model(**input_dict, start_positions=None, end_positions=None)
+    
+    for i in range(batch_size):
+      start = start_list[i].argmax()
+      end = end_list[i].argmax()
+      if end > start or end-start<=30:
+        start = 0
+        end = -1
+      answer = "".join(tokenizer.convert_ids_to_tokens(input_dict['input_ids'][i][start:end+1]))
+      all_predictions[ids[i]]=answer
+    # all_predictions.update(
+    #     {
+    #         uid: 'answer' if prob > 0.66 else ''
 
-      #         for uid, prob in zip(ids, probs)
-      #     }
-      #   )
+    #         for uid, prob in zip(ids, probs)
+    #     }
+    #   )
 
-#Path("./predict.json").write_text(json.dumps(all_predictions))
+Path("../predict.json").write_text(json.dumps(all_predictions))
