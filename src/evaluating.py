@@ -8,7 +8,7 @@ from pathlib import Path
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-output_dir = ('../model_save_測試測試/')
+output_dir = ('../model_save_測試/')
 model = BertForNextSentencePrediction.from_pretrained(output_dir)
 tokenizer = BertTokenizer.from_pretrained(output_dir)
 
@@ -52,19 +52,27 @@ with torch.no_grad():
   pbar=tqdm(test_loader)
   for batch in pbar:
     ids, contexts, questions = batch
-    input_list = []
+    eval_input = []
     for i in range(batch_size):
-      input_list.append([contexts[i], questions[i]])
-    input_dict = tokenizer.batch_encode_plus(input_list,
+        context = ()
+        question_len = len(questions[i])
+        context_max_len = 509 - question_len
+        if len(contexts[i])>context_max_len:      #truncate
+          context=contexts[i][:context_max_len]
+        else:
+          context=contexts[i]
+        eval_input.append([context, questions[i]])
+
+    input_dict = tokenizer.batch_encode_plus(eval_input,
                                               max_length=tokenizer.max_len, 
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    # for i in input_dict['token_type_ids']:
-    #   #print(i)
-    with torch.no_grad():
-      logit = model(**input_dict, start_positions=None, end_positions=None)
-      print(f"logit: {logit}")
+    logit = model(**input_dict)#, start_positions=None, end_positions=None)
+    print(f"logit: {logit}")
+
+    #for i in range(batch_size):
+      
       #print(f"start_scores: {start_scores}")
       #print(f"end_scores: {start_scores}")
       # probs = logits.softmax(-1)[:, 1]
