@@ -8,7 +8,12 @@ from pathlib import Path
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-output_dir = ('../model_save_測試1/')
+output_dir = ('./model_save_測試1/')
+parser = ArgumentParser()
+parser.add_argument('--test_data_path')
+parser.add_argument('--output_path')
+args = parser.parse_args()
+
 model = BertForQuestionAnswering.from_pretrained(output_dir)
 tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', do_lower_case=True)
 
@@ -36,7 +41,7 @@ class EarlyDataset(Dataset):
     qa_id, context, question = self.data[index]
     return qa_id, context, question
 
-test_dataset = EarlyDataset("../dev.json", tokenizer)
+test_dataset = EarlyDataset(args.test_data_path, tokenizer)
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
 all_predictions = {}
@@ -77,4 +82,4 @@ with torch.no_grad():
       all_predictions[ids[i]]=answer
 
 
-Path("../predict.json").write_text(json.dumps(all_predictions))
+Path(args.output_path).write_text(json.dumps(all_predictions))
