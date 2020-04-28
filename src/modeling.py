@@ -5,9 +5,9 @@ from transformers import *
 from tqdm.auto import trange, tqdm
 import os
 
-max_epoch = 2
+max_epoch = 3
 batch_size = 4
-lr = 1e-5
+lr = 1e-6
 weight_decay = 0
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -56,8 +56,11 @@ if __name__ == "__main__":
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
-  output_dir = '../model_save_測試1/'
+  output_dir = '../model_save_測試_'
+  version = 1
   for epoch in trange(max_epoch):
+    output_dir = output_dir+str(version)
+    print(output_dir)
     pbar = tqdm(train_loader)
     for batch in pbar:
       ids, contexts, questions, text, answerable = batch
@@ -110,5 +113,5 @@ if __name__ == "__main__":
     model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
     model_to_save.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
-    
+    version+=1
   print("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEs")

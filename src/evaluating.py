@@ -66,13 +66,14 @@ with torch.no_grad():
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
     start_list ,end_list = model(**input_dict, start_positions=None, end_positions=None)
     
-    for i in range(batch_size):
+    for i in range(len(ids)):
       start = start_list[i].argmax()
       end = end_list[i].argmax()
-      if end > start or end-start<=30:
-        start = 0
-        end = -1
-      answer = "".join(tokenizer.convert_ids_to_tokens(input_dict['input_ids'][i][start:end+1]))
+      if end < start or end-start>30:
+        start = 1
+        end = 0
+      answer = "".join(tokenizer.convert_ids_to_tokens(input_dict['input_ids'][i][start:end]))
+      answer = answer.replace("#","")
       all_predictions[ids[i]]=answer
 
 
