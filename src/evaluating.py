@@ -9,7 +9,7 @@ from pathlib import Path
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 output_dir = ('../model_save_測試/')
-model = BertForNextSentencePrediction.from_pretrained(output_dir)
+model = BertForQuestionAnswering.from_pretrained(output_dir)
 tokenizer = BertTokenizer.from_pretrained(output_dir)
 
 model.to(device)
@@ -27,12 +27,7 @@ class EarlyDataset(Dataset):
           for qa in para['qas']:
             qa_id = qa['id']
             question = qa['question']
-            # answers = qa['answers']   #dict array  [{'id': '1', 'text': '10秒鐘', 'answer_start': 84}],
-            #text = qa['answers'][0]['text']
-            #start = int(qa['answers'][0]['answer_start'])
-            #end = start+len(text)-1
-            #answerable = qa['answerable']
-            self.data.append((qa_id, context, question))# text, start, end, answerable))
+            self.data.append((qa_id, context, question))
 
   def __len__(self):
     return len(self.data)
@@ -68,8 +63,9 @@ with torch.no_grad():
                                               pad_to_max_length=True,
                                               return_tensors='pt')
     input_dict = {k: v.to(device) for k, v in input_dict.items()}
-    logit= model(**input_dict)#, start_positions=None, end_positions=None)
-    print(f"logit: {logit}")
+    a = model(**input_dict
+                                            )#, start_positions=None, end_positions=None)
+    print(f"logit: {a}")
 
     #for i in range(batch_size):
       
