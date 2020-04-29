@@ -7,7 +7,7 @@ import os
 
 max_epoch = 3
 batch_size = 4
-lr = 1e-6
+lr = 5e-6
 weight_decay = 0
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
   def startfinder(mylist, pattern):
     for i in range(len(mylist)):
       if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
-        return i, i+len(pattern)
+        return i, i+len(pattern)-1
     return 0,0
 
   train_dataset = EarlyDataset("../train.json", tokenizer)
@@ -56,10 +56,9 @@ if __name__ == "__main__":
   train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
   valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
-  output_dir = '../model_save_測試_'
   version = 1
   for epoch in trange(max_epoch):
-    output_dir = output_dir+str(version)
+    output_dir = '../model_save_'+str(version)
     print(output_dir)
     pbar = tqdm(train_loader)
     for batch in pbar:
