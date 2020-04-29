@@ -73,14 +73,24 @@ with torch.no_grad():
     start_list ,end_list = model(**input_dict, start_positions=None, end_positions=None)
     
     for i in range(len(ids)):
-      start = start_list[i].argmax()
-      end = end_list[i].argmax()
+      if start_list[i].argmax() < 0 or end_list[i].argmax():
+        start = 0
+        end = 0
+      else:
+        start = start_list[i].argmax()
+        end = end_list[i].argmax()
       if end <= start or end-start>30:
         answer = ""
       else:
         answer = "".join(tokenizer.convert_ids_to_tokens(input_dict['input_ids'][i][start:end+1]))
       answer = answer.replace("#","")
-      if ""
+      for i in range(len(answer)):
+        if answer[i]=="『":
+          if "』" not in answer[i:]:
+            answer = answer.replace("『","")
+        if answer[i]=="「":
+          if "」"not in answer[i:]:
+            answer = answer.replace("「","")
       all_predictions[ids[i]]=answer
 
 
